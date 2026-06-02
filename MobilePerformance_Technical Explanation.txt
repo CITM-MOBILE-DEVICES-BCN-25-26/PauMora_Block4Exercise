@@ -1,0 +1,20 @@
+-How i approached the optimization:
+I used the profiler to see what parts of the code had most cost to performance. With this i was able to see that the debug.log inside each cube inside their update was the biggest culprit of the bad performance.
+
+-The scene is CPU or GPU bound:
+The scene is CPU bound as the debug.log and the monobehaviour updates affect the cpu.
+
+-Optimizations i made:
+I separated the canvas in two the Dynamic and static canvas, the Dynamic holds the timer which changes and the static holds the two buttons as they dont change every frame. As the canvas refreshes as a whole when something changes, separating them ensures that only the timer changes.
+
+I deleted the monobehaviour inside each cube and created a cube manager. Through the cube spawner we pass to the manager the list of spawned cubes, now in the manager it tracks all the distances between all cubes every x seconds (in our case 3) and merges all the information into one single debug.log call. As we dont want the distances to be calculated every single frame by putting the Interval, although still expensive to calculate all the distances between all other cubes, is only done sparingly. This change though still makes the application drop a few frames when calculating the distances.
+
+There were also two cameras on the scene which also dropped the performance. To optimize this i deleted one of them.
+
+-Final comparison:
+
+Unoptimized scene: constant ~7 fps
+
+Optimized scene: constant ~420 fps --- drops to around ~400 fps the moment when we calculate the distances.
+
+If we calculated every frame the distances with all other optimizations, the scene would run at ~110 fps
